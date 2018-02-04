@@ -136,7 +136,7 @@ pop = np.random.randint(2, size=(POP_SIZE, DNA_SIZE))   # initialize the pop DNA
 #plt.plot(x, F(x))
 
 for _ in range(N_GENERATIONS):
-    print _
+    #print _
     translatedDNA = translateDNA(pop)
     F_values = F(translatedDNA)    # compute function value by extracting DNA
     F_values = np.array(F_values)

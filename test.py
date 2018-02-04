@@ -17,8 +17,8 @@ for center in range(0, usersLen):
         continue
     print ('process: ', center)
     testFriends = random.sample(firstCircle, len(firstCircle)/10)
-   # for item in testFriends:
-    #    firstCircle.remove(item)
+    for item in testFriends:
+        firstCircle.remove(item)
 
     potentialFriends = set()
     for item in firstCircle:
