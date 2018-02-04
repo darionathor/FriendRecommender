@@ -1,10 +1,11 @@
 import loadData
 import random
 from friendValue import Val
+import operator
 # load the network
 loadData.load_network()
 print 'loading complete'
-center = 0
+center = 107
 
 scores = []
 #filter
@@ -67,11 +68,11 @@ for person in potentialFriends:
 print 'generated indexes'
 import numpy as np
 
-DNA_SIZE = 765            # DNA length
+DNA_SIZE = 30            # DNA length
 POP_SIZE = 200           # population size
 CROSS_RATE = 0.8         # mating probability (DNA crossover)
 MUTATION_RATE = 0.04    # mutation probability
-N_GENERATIONS = 200
+N_GENERATIONS = 100
 X_BOUND = [0, 1000]         # x upper and lower bounds
 
 def F(dnas):
@@ -83,7 +84,7 @@ def F(dnas):
         positions = []
         for value in scores:
             ranking[value.friend_index]=dnas[0][i]*value.first_index + dnas[1][i]*value.second_index + dnas[2][i]*value.third_index     # to find the maximum of this function
-        for key, value in sorted(ranking.iteritems(), key=lambda (k, v): (v, k)):
+        for key, value in sorted(ranking.items(), key=operator.itemgetter(1)):
             sorted_ranking.append(key)
         for key in range(0, len(sorted_ranking)):
             if sorted_ranking[key] in firstCircle:
@@ -99,12 +100,12 @@ def get_fitness(pred): return pred + 1e-3 - np.min(pred)
 
 # convert binary DNA to decimal and normalize it to a range(0, 1000)
 def translateDNA(pop):
-    x = pop[:,0:255]
-    y = pop[:,255:2*255]
-    z = pop[:,2*255:3*255]
-    return [x.dot(2 ** np.arange(255)[::-1]) / float(2**255-1) * X_BOUND[1],
-            y.dot(2 ** np.arange(255)[::-1]) / float(2 ** 255 - 1) * X_BOUND[1],
-            z.dot(2 ** np.arange(255)[::-1]) / float(2 ** 255 - 1) * X_BOUND[1]]
+    x = pop[:,0:10]
+    y = pop[:,10:2*10]
+    z = pop[:,2*10:3*10]
+    return [x.dot(2 ** np.arange(10)[::-1]) / float(2**10-1) * X_BOUND[1],
+            y.dot(2 ** np.arange(10)[::-1]) / float(2 ** 10 - 1) * X_BOUND[1],
+            z.dot(2 ** np.arange(10)[::-1]) / float(2 ** 10 - 1) * X_BOUND[1]]
 
 
 def select(pop, fitness):    # nature selection wrt pop's fitness
@@ -135,6 +136,7 @@ pop = np.random.randint(2, size=(POP_SIZE, DNA_SIZE))   # initialize the pop DNA
 #plt.plot(x, F(x))
 
 for _ in range(N_GENERATIONS):
+    print _
     translatedDNA = translateDNA(pop)
     F_values = F(translatedDNA)    # compute function value by extracting DNA
     F_values = np.array(F_values)
@@ -153,30 +155,33 @@ for _ in range(N_GENERATIONS):
         parent[:] = child       # parent is replaced by its child
 print 'generated weights'
 #print pop[np.argmax((fitness))]
-x = pop[np.argmax((fitness))][0:255]
-y = pop[np.argmax((fitness))][255:2*255]
-z = pop[np.argmax((fitness))][2*255:3*255]
-weights = [x.dot(2 ** np.arange(255)[::-1]) / float(2**255-1) * X_BOUND[1],
-            y.dot(2 ** np.arange(255)[::-1]) / float(2 ** 255 - 1) * X_BOUND[1],
-            z.dot(2 ** np.arange(255)[::-1]) / float(2 ** 255 - 1) * X_BOUND[1]]
+fitness = get_fitness(F_values)
+x = pop[np.argmax((fitness))][0:10]
+y = pop[np.argmax((fitness))][10:2*10]
+z = pop[np.argmax((fitness))][2*10:3*10]
+weights = [x.dot(2 ** np.arange(10)[::-1]) / float(2**10-1) * X_BOUND[1],
+            y.dot(2 ** np.arange(10)[::-1]) / float(2 ** 10 - 1) * X_BOUND[1],
+            z.dot(2 ** np.arange(10)[::-1]) / float(2 ** 10 - 1) * X_BOUND[1]]
 print weights
 positions = []
 sorted_ranking = []
 ranking = {}
 for value in scores:
     ranking[value.friend_index]=weights[0]*value.first_index + weights[1]*value.second_index + weights[2]*value.third_index     # to find the maximum of this function
-for key, value in sorted(ranking.iteritems(), key=lambda (k, v): (v, k)):
+
+for key, value in sorted(ranking.items(), key=operator.itemgetter(1)):
     sorted_ranking.append(key)
 for key in range(0, len(sorted_ranking)):
     if sorted_ranking[key] not in firstCircle:
-        positions.append(key)
+        positions.append(sorted_ranking[key])
 correctSuggestions = 0
-for i in range(0,20):
-    if(i<len(positions)):
-        if(positions[i] in testFriends):
-            correctSuggestions = correctSuggestions +1
-print '% of test friends recommended'
-print correctSuggestions/20.0
+print positions
+# for i in range(0,20):
+#     if(i<len(positions)):
+#         if(positions[i] in testFriends):
+#             correctSuggestions = correctSuggestions +1
+# print '% of test friends recommended'
+# print correctSuggestions/20.0
 
 correctSuggestions = 0
 for i in range(len(positions)-20,len(positions)):
@@ -184,4 +189,4 @@ for i in range(len(positions)-20,len(positions)):
         if(positions[i] in testFriends):
             correctSuggestions = correctSuggestions +1
 print '% of test friends recommended'
-print correctSuggestions/20.0
+print correctSuggestions/20.0 *100
