@@ -1,9 +1,9 @@
-import loadData
+import data_loader
 import random
 import operator
-loadData.load_network()
+data_loader.load_network()
 print 'loading complete'
-usersLen = loadData.network.number_of_nodes()
+usersLen = data_loader.network.number_of_nodes()
 testResults = []
 testResults1 = []
 testResults2 = []
@@ -11,7 +11,7 @@ testResults3 = []
 for center in range(0, usersLen):
     scores = {}
     #filter
-    firstCircle = set(loadData.network.neighbors(center))
+    firstCircle = set(data_loader.network.neighbors(center))
     friend_count = len(firstCircle)
     if(friend_count<10):
         continue
@@ -22,13 +22,13 @@ for center in range(0, usersLen):
     potentialFriends = set()
     for item in firstCircle:
         potentialFriends.add((item))
-        for item2 in list(loadData.network.neighbors((item))):
+        for item2 in list(data_loader.network.neighbors((item))):
             potentialFriends.add(item2)
 
     #order
     for person in potentialFriends:
 
-        neighbours = set(loadData.network.neighbors((person)))
+        neighbours = set(data_loader.network.neighbors((person)))
         shared_friends = firstCircle.intersection(neighbours)
         value = len(shared_friends)
         scores[person] = value
