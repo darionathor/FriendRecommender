@@ -13,7 +13,7 @@ for center in range(0, usersLen):
     scores = []
     #filter
     firstCircle = set(loadData.network.neighbors(center))
-    if len(firstCircle)<200:
+    if len(firstCircle)>100 or len(firstCircle)<10:
         continue
     print ('process: ', center)
     testFriends = random.sample(firstCircle, len(firstCircle)/10)
@@ -73,7 +73,7 @@ for center in range(0, usersLen):
         scores.append(Val(person,first_index,second_index,third_index))
     print 'generated indexes'
 
-    DNA_SIZE = 30# DNA length
+    DNA_SIZE = 30            # DNA length
     RNA_SIZE = 10
     POP_SIZE = 200           # population size
     CROSS_RATE = 0.8         # mating probability (DNA crossover)
@@ -87,7 +87,6 @@ for center in range(0, usersLen):
         for i in range(0,len(dnas[0])):
             ranking = {}
             sorted_ranking = []
-            average_position = 0
             positions = []
             for value in scores:
                 ranking[value.friend_index]=dnas[0][i]*value.first_index + dnas[1][i]*value.second_index + dnas[2][i]*value.third_index     # to find the maximum of this function
@@ -138,21 +137,13 @@ for center in range(0, usersLen):
 
     pop = np.random.randint(2, size=(POP_SIZE, DNA_SIZE))   # initialize the pop DNA
 
-    #plt.ion()       # something about plotting
-    #x = np.linspace(*X_BOUND, 200)
-    #plt.plot(x, F(x))
-
     for _ in range(N_GENERATIONS):
         translatedDNA = translateDNA(pop)
         F_values = F(translatedDNA)    # compute function value by extracting DNA
         F_values = np.array(F_values)
-        # something about plotting
-     #   if 'sca' in globals(): sca.remove()
-      #  sca = plt.scatter(translateDNA(pop), F_values, s=200, lw=0, c='red', alpha=0.5); plt.pause(0.05)
 
         # GA part (evolution)
         fitness = get_fitness(F_values)
-     #   print("Most fitted DNA: ", pop[np.argmax(fitness), :])
         pop = select(pop, fitness)
         pop_copy = pop.copy()
         for parent in pop:
@@ -160,7 +151,6 @@ for center in range(0, usersLen):
             child = mutate(child)
             parent[:] = child       # parent is replaced by its child
     print 'generated weights'
-    #print pop[np.argmax((fitness))]
     fitness = get_fitness(F_values)
     x = pop[np.argmax((fitness))][0:RNA_SIZE]
     y = pop[np.argmax((fitness))][RNA_SIZE:2*RNA_SIZE]
@@ -168,7 +158,6 @@ for center in range(0, usersLen):
     weights = [x.dot(2 ** np.arange(RNA_SIZE)[::-1]) / float(2**RNA_SIZE-1) * X_BOUND[1],
                 y.dot(2 ** np.arange(RNA_SIZE)[::-1]) / float(2 ** RNA_SIZE - 1) * X_BOUND[1],
                 z.dot(2 ** np.arange(RNA_SIZE)[::-1]) / float(2 ** RNA_SIZE - 1) * X_BOUND[1]]
-    #print weights
     positions = []
     sorted_ranking = []
     ranking = {}
@@ -176,12 +165,10 @@ for center in range(0, usersLen):
         ranking[value.friend_index]=weights[0]*value.first_index + weights[1]*value.second_index + weights[2]*value.third_index     # to find the maximum of this function
     for key, value in sorted(ranking.items(), key=operator.itemgetter(1)):
         sorted_ranking.append(key)
-    #print sorted_ranking
     for key in range(0, len(sorted_ranking)):
         if sorted_ranking[key] not in firstCircle:
             positions.append(sorted_ranking[key])
     correctSuggestions = 0
-    #positions = positions[::-1]
     testSize = len(testFriends)
     for i in range(len(positions)-testSize,len(positions)):
         if(i<len(positions)):
@@ -191,11 +178,4 @@ for center in range(0, usersLen):
     print '% of test friends recommended'
     print correctSuggestions/float(testSize)
 
-    # correctSuggestions = 0
-    # for i in range(len(positions)-20,len(positions)):
-    #     if(i<len(positions)):
-    #         if(positions[i] in testFriends):
-    #             correctSuggestions = correctSuggestions +1
-    # print '% of test friends recommended'
-    # print correctSuggestions/20.0
 print sum(testResults)/float(len(testResults))
